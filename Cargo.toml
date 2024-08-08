@@ -7,4 +7,4 @@ edition = "2021"
 tokio = { version = "1", features = ["full"] }
 reqwest = "0.12.5"
 scraper = "0.20.0"
-serde = "1.0.204"
+serde = {version = "1.0.204", features = ["derive"]}
