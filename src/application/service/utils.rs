@@ -1,14 +1,15 @@
 use scraper::{ElementRef, Html, Selector};
 
 pub async fn scrape(url: &str) -> Html {
+    debug!("Requesting {url}");
     let req = reqwest::get(url).await.unwrap();
     match req.status().as_u16() {
-        200 => println!("[LOG] Successfully fetched {}", url),
+        200 => info!("Successfully fetched {url}"),
         _ => {
-            panic!("[ERROR] Couldn't fetched {}, quitting", url)
+            error!(" Couldn't fetch {url}")
         }
     };
-    Html::parse_document(&req.text().await.unwrap())
+    Html::parse_document(&req.text().await.unwrap_or_default())
 }
 
 pub fn get_attr<'a>(html: &'a ElementRef<'a>, selector: &'a str, attr: &'a str) -> String {
