@@ -1,25 +1,10 @@
-use crate::traits::*;
+use super::super::entity::task::*;
+use super::super::service::utils::*;
 use scraper::{ElementRef, Html, Selector};
 
-pub async fn scrape(url: &str) -> Html {
-    let req = reqwest::get(url).await.unwrap();
-    match req.status().as_u16() {
-        200 => println!("[LOG] Successfully fetched {}", url),
-        _ => {
-            panic!("[ERROR] Couldn't fetched {}, quitting", url)
-        }
-    };
-    Html::parse_document(&req.text().await.unwrap())
-}
-
-// TODO: make this mothefucker return vec of tasks
 pub fn parse_html_habr(html: Html) -> Vec<Task> {
     let task_selector = Selector::parse(".task").unwrap();
-    let mut task_articles = vec![];
-    for element in html.select(&task_selector) {
-        task_articles.push(element);
-    }
-
+    let task_articles: Vec<ElementRef<'_>> = html.select(&task_selector).collect();
     let mut tasks: Vec<Task> = vec![];
 
     for task in &task_articles {
@@ -30,7 +15,8 @@ pub fn parse_html_habr(html: Html) -> Vec<Task> {
         let responses = get_inner_html(task, ".params__responses > i")
             .parse::<u32>()
             .unwrap_or_default();
-        let published_at = get_inner_html(task, ".params__published-at > span");
+        // TODO: make this a unix timestamp instead of "7 минут назад"
+        let timestamp = get_inner_html(task, ".params__published-at > span");
         let link = get_attr(task, "a", "href");
 
         let price_count: String = get_inner_html(task, ".task__price > .count")
@@ -56,34 +42,13 @@ pub fn parse_html_habr(html: Html) -> Vec<Task> {
             views,
             responses,
             link,
-            published_at,
+            timestamp,
             tags,
             platform: Platform::Habr,
             price,
         };
-        // dbg!(&tasks);
         tasks.push(task_element);
     }
 
     tasks
-}
-
-pub fn get_attr<'a>(html: &'a ElementRef<'a>, selector: &'a str, attr: &'a str) -> String {
-    let option = html
-        .select(&Selector::parse(selector).unwrap())
-        .next()
-        .unwrap()
-        .attr(attr);
-    match option {
-        Some(attr) => attr.to_string(),
-        _ => "N/A".to_string(),
-    }
-}
-
-pub fn get_inner_html(html: &ElementRef, selector: &str) -> String {
-    let option = html.select(&Selector::parse(selector).unwrap()).next();
-    match option {
-        Some(element) => element.inner_html(),
-        _ => "N/A".to_string(),
-    }
 }
