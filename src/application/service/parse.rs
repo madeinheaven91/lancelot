@@ -15,6 +15,7 @@ pub fn parse_html_habr(html: Html) -> Vec<Task> {
         let responses = get_inner_html(task, ".params__responses > i")
             .parse::<u32>()
             .unwrap_or_default();
+
         // TODO: make this a unix timestamp instead of "7 минут назад"
         let timestamp = get_inner_html(task, ".params__published-at > span");
         let link = get_attr(task, "a", "href");
@@ -52,3 +53,13 @@ pub fn parse_html_habr(html: Html) -> Vec<Task> {
 
     tasks
 }
+
+pub fn parse_html_fl(html: Html){
+
+}
+
+pub fn parse_html_kwork(html: Html){
+
+}
+
+

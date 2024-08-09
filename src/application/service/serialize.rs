@@ -1,10 +1,9 @@
 use std::collections::HashMap;
 
 use serde_json::*;
-use super::utils::*;
 use super::super::entity::task::*;
 
-pub fn serialize_task(task: Task) -> serde_json::Value{
+pub fn json_task(task: Task) -> serde_json::Value{
     let mut map: HashMap<&str, Value> = HashMap::new();
 
     let price_count = match &task.price.get_price(){
@@ -36,3 +35,7 @@ pub fn serialize_task(task: Task) -> serde_json::Value{
 //  timestamp: Number,
 //  tags: Array[String]
 //}
+
+pub fn json_task_vec(tasks: Vec<Task>) -> serde_json::Value{
+    json!(tasks.iter().map(|el| json_task(el.clone())).collect::<Vec<_>>())
+}
