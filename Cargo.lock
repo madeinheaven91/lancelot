@@ -730,6 +730,7 @@ dependencies = [
  "hyper",
  "hyper-util",
  "log",
+ "rand",
  "reqwest",
  "scraper",
  "serde",

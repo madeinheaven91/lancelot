@@ -23,7 +23,7 @@ fn colourful_loglevel(level: Level) -> ColoredString {
         Level::Error => level.to_string().red(),
         Level::Warn => level.to_string().yellow(),
         Level::Info => level.to_string().blue(),
-        Level::Debug => level.to_string().cyan(),
+        Level::Debug => level.to_string().green(),
         Level::Trace => level.to_string().magenta(),
     }
 }

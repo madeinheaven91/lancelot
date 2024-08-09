@@ -5,7 +5,6 @@ edition = "2021"
 
 [dependencies]
 tokio = { version = "1", features = ["full"] }
-reqwest = "0.12.5"
 scraper = "0.20.0"
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
@@ -19,3 +18,5 @@ hyper = { version = "1", features = ["full"] }
 http-body-util = "0.1"
 hyper-util = { version = "0.1", features = ["full"] }
 tower = "0.4"
+reqwest = "0.12.5"
+rand = "0.8.5"

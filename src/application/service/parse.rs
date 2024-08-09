@@ -1,5 +1,5 @@
-use super::super::entity::task::*;
-use super::super::service::utils::*;
+use crate::application::service::html::{get_attr, get_inner_html};
+use crate::application::entity::task::*;
 use scraper::{ElementRef, Html, Selector};
 
 pub fn parse_html_habr(html: Html) -> Vec<Task> {
@@ -54,12 +54,12 @@ pub fn parse_html_habr(html: Html) -> Vec<Task> {
     tasks
 }
 
-pub fn parse_html_fl(html: Html){
-
+pub fn parse_html_fl(html: Html) -> Vec<Task>{
+    vec![Default::default()]
 }
 
-pub fn parse_html_kwork(html: Html){
-
+pub fn parse_html_kwork(html: Html) -> Vec<Task>{
+    vec![Default::default()]
 }
 
 

@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use serde_json::*;
-use super::super::entity::task::*;
+use crate::application::entity::task::*;
 
 pub fn json_task(task: Task) -> serde_json::Value{
     let mut map: HashMap<&str, Value> = HashMap::new();
