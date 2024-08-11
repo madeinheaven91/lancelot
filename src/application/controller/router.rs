@@ -18,17 +18,17 @@ pub async fn router(
 ) -> Result<Response<BoxBody<Bytes, hyper::Error>>, hyper::Error> {
     match (req.method(), req.uri().path()) {
         (&Method::GET, "/habr") => ok(&json_task_vec(parse_html_habr(
-            fetch_html("https://freelance.habr.com/tasks").await,
+            fetch_html("https://freelance.habr.com/tasks", "freelance.habr.com").await,
         ))),
         // (&Method::GET, "/fl") => ok(&json_task_vec(parse_html_fl(
         //     fetch_html("https://fl.ru/projects").await,
         // ))),
-        // (&Method::GET, "/kwork") => ok(&json_task_vec(parse_html_kwork(
-        //     fetch_html("https://kwork.ru/projects").await,
-        // ))),
+        (&Method::GET, "/kwork") => ok(&json_task_vec(parse_html_kwork(
+            fetch_html("https://kwork.ru/projects", "kwork.ru").await,
+        ))),
 
         (&Method::GET, "/test/client") => ok(&json_task_vec(parse_html_habr(
-            fetch_html("http://httpbin.org/ip").await
+            fetch_html("http://httpbin.org/ip", "httpbin.org").await
         ))),
         (&Method::GET, "/test/server") => ok(&"test".to_string()),
         _ => {

@@ -46,6 +46,10 @@ pub fn json_task(task: Task) -> serde_json::Value {
             map.insert("views", json!(&specific_task.views));
             map.insert("published_at", json!(&specific_task.published_at));
             map.insert("tags", json!(&specific_task.tags));
+        },
+
+        Platform::Kwork(specific_task) => {
+            map.insert("expires_at", json!(&specific_task.expires_at));
         }
         _ => {
             // let price_value = match &task.price.get_price() {

@@ -45,18 +45,78 @@ pub fn parse_html_habr(html: Html) -> Vec<Task> {
             tags.push(tag);
         }
 
-        let price = Price{
+        let price = Price {
             kind: price_kind,
-            value: price_value
+            value: price_value,
         };
 
-        let task_specific = HabrTask{
+        let task_specific = HabrTask {
             views,
             published_at,
-            tags
+            tags,
         };
 
-        let task = Task{
+        let task = Task {
+            title,
+            url,
+            responses,
+            price,
+            platform: Platform::from(task_specific),
+        };
+
+        tasks.push(task);
+    }
+
+    tasks
+}
+
+fn filter_digits(string: String) -> u32 {
+    string
+        .chars()
+        .filter(|el| el.is_ascii_digit())
+        .collect::<String>()
+        .parse::<u32>()
+        .unwrap_or_default()
+}
+
+pub fn parse_html_kwork(html: Html) -> Vec<Task> {
+    let task_selector = Selector::parse(".want-card").unwrap();
+    let task_articles: Vec<ElementRef<'_>> = html.select(&task_selector).collect();
+    let mut tasks: Vec<Task> = vec![];
+
+    // dbg!(&task_articles);
+    for task in &task_articles {
+        // dbg!(&task);
+        let title = get_inner_html(task, ".wants-card__header-title > a");
+        let responses = filter_digits(get_inner_html(task, "want-card__informers-row:nth-child(2)"));
+
+        let url = get_attr(task, ".wants-card__header-title > a", "href");
+        let expires_at = get_inner_html(task, "want-card__informers-row:first-child");
+
+        let mut tags = vec![];
+        for li in task.select(&Selector::parse("ul.tags > *").unwrap()) {
+            let tag = get_inner_html(&li, "a");
+            tags.push(tag);
+        }
+
+        let price_lower_bound = filter_digits(get_inner_html(task, ".wants-card__price .d-inline"));
+        let price_upper_bound =
+            filter_digits(get_inner_html(task, ".wants-card__description-higher-price .d-inline"));
+    
+        let price_value: PriceValue;
+        match price_upper_bound{
+            0 => price_value = PriceValue::Exact(price_lower_bound),
+            _ => price_value = PriceValue::Range(price_lower_bound, price_upper_bound),
+        }
+
+        let price = Price {
+            kind: PriceKind::PerProject,
+            value: price_value,
+        };
+
+        let task_specific = KworkTask { expires_at };
+
+        let task = Task {
             title,
             url,
             responses,
@@ -128,3 +188,4 @@ pub fn parse_html_habr(html: Html) -> Vec<Task> {
 // pub fn parse_html_kwork(html: Html) -> Vec<Task>{
 //
 // }
+//

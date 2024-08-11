@@ -1,6 +1,6 @@
 use std::env;
 
-use hyper::HeaderMap;
+use hyper::{header::{self, HeaderName, HeaderValue, HOST}, HeaderMap};
 // use http_body_util::Empty;
 // use hyper::body::Bytes;
 // use hyper::Request;
@@ -156,14 +156,15 @@ use scraper::Html;
 use crate::application::service::http::utils::{gen_headers, random_user_agent};
 mod utils;
 
-pub async fn fetch_html(url: &str) -> Html {
+pub async fn fetch_html(url: &str, hostname: &str) -> Html {
     let client = reqwest::Client::new();
    
     let headers = gen_headers();
     debug!("Requesting {url}");
     let req = client
         .get(url)
-        .headers(headers);
+        .headers(headers)
+        .header(HOST, hostname);
 
     if env::var_os("RUST_LOG").unwrap_or_default().to_str().unwrap() == "debug" { dbg!(&req); }; 
     let res = req
