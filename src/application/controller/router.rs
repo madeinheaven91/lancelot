@@ -20,12 +20,12 @@ pub async fn router(
         (&Method::GET, "/habr") => ok(&json_task_vec(parse_html_habr(
             fetch_html("https://freelance.habr.com/tasks").await,
         ))),
-        (&Method::GET, "/fl") => ok(&json_task_vec(parse_html_fl(
-            fetch_html("https://fl.ru/projects").await,
-        ))),
-        (&Method::GET, "/kwork") => ok(&json_task_vec(parse_html_kwork(
-            fetch_html("https://kwork.ru/projects").await,
-        ))),
+        // (&Method::GET, "/fl") => ok(&json_task_vec(parse_html_fl(
+        //     fetch_html("https://fl.ru/projects").await,
+        // ))),
+        // (&Method::GET, "/kwork") => ok(&json_task_vec(parse_html_kwork(
+        //     fetch_html("https://kwork.ru/projects").await,
+        // ))),
 
         (&Method::GET, "/test/client") => ok(&json_task_vec(parse_html_habr(
             fetch_html("http://httpbin.org/ip").await

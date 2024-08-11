@@ -1,26 +1,70 @@
 use std::collections::HashMap;
 
-use serde_json::*;
 use crate::application::entity::task::*;
+use serde_json::*;
 
-pub fn json_task(task: Task) -> serde_json::Value{
+pub fn json_task(task: Task) -> serde_json::Value {
     let mut map: HashMap<&str, Value> = HashMap::new();
 
-    let price_count = match &task.price.get_price(){
-        Some(val) => json!(val),
-        _ => json!(null)
-    };
-
+    // Insertion of general properties
     map.insert("title", json!(&task.title));
     map.insert("link", json!(&task.get_link()));
-    map.insert("platform", json!(&task.get_platform()));
-    map.insert("price_type", json!(&task.price.get_type()));
-    map.insert("price", price_count);
-    map.insert("views", json!(&task.views));
+    map.insert("platform", json!(&task.get_platform_name()));
     map.insert("responses", json!(&task.responses));
-    map.insert("timestamp", json!(&task.timestamp));
-    map.insert("tags", json!(&task.tags));
+  
+    // Insertion of prices
+    let price = &task.price;
+    let price_kind = match price.kind{
+        PriceKind::PerProject => json!("per project"),
+        PriceKind::PerHour =>  json!("per hour"),
+        PriceKind::Negotiated => json!("negotiated")
+    };
+    map.insert("price_kind", price_kind);
+
+    let mut price_value: Option<u32> = None;
+    let mut price_bounds: Option<(u32, u32)> = None;
     
+    match price.value{
+        PriceValue::Exact(val) => {price_value = Some(val)},
+        PriceValue::Range(lower, upper) => {price_bounds = Some((lower, upper))},
+    }
+
+    if price_value.unwrap_or_default() == 0{
+        if price_bounds.unwrap_or_default() == (0u32, 0u32){
+            map.insert("price_value", json!(null));
+        }else{
+            map.insert("price_lower_bound", json!(price_bounds.unwrap_or_default().0));
+            map.insert("price_upper_bound", json!(price_bounds.unwrap_or_default().1));
+        }
+    }else{
+        map.insert("price_value", json!(price_value.unwrap_or_default()));
+    }
+
+    // Insertion of platform specific properties
+    match task.platform {
+        Platform::Habr(specific_task) => {
+            map.insert("views", json!(&specific_task.views));
+            map.insert("published_at", json!(&specific_task.published_at));
+            map.insert("tags", json!(&specific_task.tags));
+        }
+        _ => {
+            // let price_value = match &task.price.get_price() {
+            //     Some(val) => json!(val),
+            //     _ => json!(null),
+            // };
+
+            // let price_value;
+            // match &task.price{
+            //
+            // }
+
+            // map.insert("price_type", json!(&task.price.get_type()));
+            // map.insert("price", price_count);
+            // map.insert("views", json!(&task.views));
+            // map.insert("timestamp", json!(&task.timestamp));
+            // map.insert("tags", json!(&task.tags));
+        }
+    }
     json!(map)
 }
 
@@ -36,6 +80,9 @@ pub fn json_task(task: Task) -> serde_json::Value{
 //  tags: Array[String]
 //}
 
-pub fn json_task_vec(tasks: Vec<Task>) -> serde_json::Value{
-    json!(tasks.iter().map(|el| json_task(el.clone())).collect::<Vec<_>>())
+pub fn json_task_vec(tasks: Vec<Task>) -> serde_json::Value {
+    json!(tasks
+        .iter()
+        .map(|el| json_task(el.clone()))
+        .collect::<Vec<_>>())
 }
