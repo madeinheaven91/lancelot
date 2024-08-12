@@ -4,7 +4,7 @@ use serde::Serialize;
 
 use crate::{
     application::service::{
-        http::fetch_html,
+        http::{fetch_html, fetch_html_headless},
         parse,
         serialize::{json_task, json_task_vec},
     },
@@ -20,11 +20,11 @@ pub async fn router(
         (&Method::GET, "/habr") => ok(&json_task_vec(parse_html_habr(
             fetch_html("https://freelance.habr.com/tasks", "freelance.habr.com").await,
         ))),
-        // (&Method::GET, "/fl") => ok(&json_task_vec(parse_html_fl(
-        //     fetch_html("https://fl.ru/projects").await,
-        // ))),
+        (&Method::GET, "/fl") => ok(&json_task_vec(parse_html_fl(
+            fetch_html("https://www.fl.ru/projects", "www.fl.ru").await,
+        ))),
         (&Method::GET, "/kwork") => ok(&json_task_vec(parse_html_kwork(
-            fetch_html("https://kwork.ru/projects", "kwork.ru").await,
+            fetch_html_headless("https://kwork.ru/projects", "div.want-card").await,
         ))),
 
         (&Method::GET, "/test/client") => ok(&json_task_vec(parse_html_habr(

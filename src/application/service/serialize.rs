@@ -47,27 +47,16 @@ pub fn json_task(task: Task) -> serde_json::Value {
             map.insert("published_at", json!(&specific_task.published_at));
             map.insert("tags", json!(&specific_task.tags));
         },
-
+        Platform::FL(specific_task) => {
+            map.insert("is_urgent", json!(&specific_task.is_urgent));
+            map.insert("is_vacancy", json!(&specific_task.is_vacancy));
+            map.insert("is_pinned", json!(&specific_task.is_pinned));
+            map.insert("views", json!(&specific_task.views));
+        },
         Platform::Kwork(specific_task) => {
             map.insert("expires_at", json!(&specific_task.expires_at));
-        }
-        _ => {
-            // let price_value = match &task.price.get_price() {
-            //     Some(val) => json!(val),
-            //     _ => json!(null),
-            // };
-
-            // let price_value;
-            // match &task.price{
-            //
-            // }
-
-            // map.insert("price_type", json!(&task.price.get_type()));
-            // map.insert("price", price_count);
-            // map.insert("views", json!(&task.views));
-            // map.insert("timestamp", json!(&task.timestamp));
-            // map.insert("tags", json!(&task.tags));
-        }
+        },
+        _ => () ,
     }
     json!(map)
 }

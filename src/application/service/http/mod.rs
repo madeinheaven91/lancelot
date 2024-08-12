@@ -1,5 +1,6 @@
 use std::env;
 
+use fantoccini::{ClientBuilder, Locator};
 use hyper::{header::{self, HeaderName, HeaderValue, HOST}, HeaderMap};
 // use http_body_util::Empty;
 // use hyper::body::Bytes;
@@ -155,6 +156,14 @@ use scraper::Html;
 
 use crate::application::service::http::utils::{gen_headers, random_user_agent};
 mod utils;
+    
+pub async fn fetch_html_headless(url: &str, await_css: &str) -> Html {
+    let client = ClientBuilder::native().connect("http://localhost:4444/").await.expect("Failed to connect to WebDriver");
+    client.goto(url).await;
+    client.wait().for_element(Locator::Css(await_css)).await;
+    let res = client.source().await.unwrap();
+    scraper::Html::parse_document(res.as_str())
+}
 
 pub async fn fetch_html(url: &str, hostname: &str) -> Html {
     let client = reqwest::Client::new();
