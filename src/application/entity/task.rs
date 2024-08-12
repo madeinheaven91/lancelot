@@ -88,6 +88,7 @@ pub enum PriceKind{
     PerProject,
     PerHour,
     Negotiated,
+    None
 }
 
 impl Price{
@@ -95,7 +96,8 @@ impl Price{
         match self.kind{
             PriceKind::PerProject => "per project".to_string(),
             PriceKind::PerHour => "per hour".to_string(),
-            PriceKind::Negotiated => "negotiated".to_string()
+            PriceKind::Negotiated => "negotiated".to_string(),
+            _ => "none".to_string()
         } 
     }
 }
