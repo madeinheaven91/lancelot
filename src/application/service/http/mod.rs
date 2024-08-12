@@ -160,8 +160,10 @@ mod utils;
 pub async fn fetch_html_headless(url: &str, await_css: &str) -> Html {
     let client = ClientBuilder::native().connect("http://localhost:4444/").await.expect("Failed to connect to WebDriver");
     client.goto(url).await;
+    info!("Waiting for {url} to load");
     client.wait().for_element(Locator::Css(await_css)).await;
     let res = client.source().await.unwrap();
+    info!("Successfully loaded {url}");
     scraper::Html::parse_document(res.as_str())
 }
 

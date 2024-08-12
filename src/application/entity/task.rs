@@ -66,6 +66,7 @@ pub struct HabrTask{
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct FLTask{
+    pub published_at: String,
     pub views: u32,
     pub is_urgent: bool,
     pub is_pinned: bool,
@@ -88,7 +89,7 @@ pub enum PriceKind{
     PerProject,
     PerHour,
     Negotiated,
-    None
+    Monthly
 }
 
 impl Price{
@@ -97,7 +98,7 @@ impl Price{
             PriceKind::PerProject => "per project".to_string(),
             PriceKind::PerHour => "per hour".to_string(),
             PriceKind::Negotiated => "negotiated".to_string(),
-            _ => "none".to_string()
+            PriceKind::Monthly => "monthly".to_string()
         } 
     }
 }
