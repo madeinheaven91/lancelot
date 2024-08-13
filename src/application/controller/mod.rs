@@ -17,8 +17,13 @@ use crate::application::controller::router::*;
 
 pub async fn init_server() -> Result<(), Box<dyn std::error::Error>> {
     // let port = dotenv!("PORT").parse::<u32>().unwrap_or(3000);
+    
+    let port = match std::env::var("LANCELOT_PORT") {
+        Ok(v) => v.parse::<u16>().unwrap_or(3000),
+        Err(_) => 3000
+    };
 
-    let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
+    let addr = SocketAddr::from(([127, 0, 0, 1], port));
     let listener = TcpListener::bind(addr).await?;
     info!("Start listening at {}", addr.to_string());
 
