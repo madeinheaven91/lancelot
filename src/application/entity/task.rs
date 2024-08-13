@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 pub struct Task{
     pub title: String,
     pub url: String,
-    pub responses: u32,
+    pub responses: Option<u32>,
     pub platform: Platform,
     pub price: Price,
 }

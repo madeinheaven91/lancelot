@@ -19,9 +19,11 @@ pub fn parse_html_habr(html: Html) -> Vec<Task> {
         let views = get_inner_html(task, ".params__views > i")
             .parse::<u32>()
             .unwrap_or_default();
-        let responses = get_inner_html(task, ".params__responses > i")
-            .parse::<u32>()
-            .unwrap_or_default();
+        let responses = Some(
+            get_inner_html(task, ".params__responses > i")
+                .parse::<u32>()
+                .unwrap_or_default(),
+        );
 
         // TODO: make this a unix timestamp instead of "7 минут назад"
         let published_at = get_inner_html(task, ".params__published-at > span");
@@ -90,12 +92,14 @@ pub fn parse_html_fl(html: Html) -> Vec<Task> {
                 .next()
                 .unwrap(),
         ));
-        let responses = filter_digits(get_text(
-            task.select(&Selector::parse("div.b-post__txt.b-post__txt_fontsize_11 + a").unwrap())
-                .next()
-                .unwrap(),
-        ));
 
+        let response_element = task
+            .select(&Selector::parse("div.b-post__txt.b-post__txt_fontsize_11 + a").unwrap())
+            .next();
+        let responses = match response_element {
+            None => None,
+            _ => Some(filter_digits(get_text(response_element.unwrap()))),
+        };
         // TODO: make this a unix timestamp instead of "7 минут назад"
         let published_at = get_inner_html(task, ".text-gray-opacity-4.text-7.mr-16");
         let url = get_attr(task, ".b-post__title > a", "href");
@@ -109,17 +113,18 @@ pub fn parse_html_fl(html: Html) -> Vec<Task> {
         let mut price_kind = PriceKind::Monthly;
         if price_text.contains("час") {
             price_kind = PriceKind::PerHour
-        }
-        else if price_text.contains("заказ") {
+        } else if price_text.contains("заказ") {
             price_kind = PriceKind::PerProject
-        }
-        else if price_text.contains("По результатам собеседования"){
+        } else if price_text.contains("По результатам собеседования") {
             price_kind = PriceKind::Negotiated
         }
 
         let price_value: PriceValue;
         if price_text.contains('—') {
-            let bound = price_text.split('—').map(|el| filter_digits(el.to_string())).collect::<Vec<_>>();
+            let bound = price_text
+                .split('—')
+                .map(|el| filter_digits(el.to_string()))
+                .collect::<Vec<_>>();
             let lower_bound = bound[0];
             let upper_bound = bound[1];
             price_value = PriceValue::Range(lower_bound, upper_bound);
@@ -171,10 +176,10 @@ pub fn parse_html_kwork(html: Html) -> Vec<Task> {
 
     for task in &task_articles {
         let title = get_inner_html(task, ".wants-card__header-title > a");
-        let responses = filter_digits(get_inner_html(
+        let responses = Some(filter_digits(get_inner_html(
             task,
             ".want-card__informers-row > span + span",
-        ));
+        )));
 
         let url = get_attr(task, ".wants-card__header-title > a", "href");
         let expires_at = get_inner_html(task, ".want-card__informers-row > span")
