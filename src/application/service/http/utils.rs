@@ -1,6 +1,5 @@
-use std::str::FromStr;
 
-use hyper::{header::{HeaderValue, ACCEPT_LANGUAGE}, HeaderMap};
+use hyper::{header::HeaderValue, HeaderMap};
 use rand::Rng;
 
 pub fn random_user_agent() -> String {
@@ -1013,7 +1012,7 @@ pub fn random_user_agent() -> String {
 pub fn gen_headers() -> HeaderMap{
    let mut map = HeaderMap::new();
 
-    // let user_agent = HeaderValue::from_str(random_user_agent().as_str()).unwrap();
+    let user_agent = HeaderValue::from_str(random_user_agent().as_str()).unwrap();
     // let accept = HeaderValue::from_str("text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/png,image/svg+xml,*/*;q=0.8").unwrap();
     // // let accept_encoding = HeaderValue::from_str("gzip, deflate, br").unwrap();
     // let accept_language = HeaderValue::from_str("en-US,en;q=0.5").unwrap();
@@ -1021,7 +1020,7 @@ pub fn gen_headers() -> HeaderMap{
     // let sec_fetch_dest = HeaderValue::from_str("document").unwrap();
     // let sec_fetch_mode = HeaderValue::from_str("navigate").unwrap();  
     // let referer = HeaderValue::from_str("https://google.com/").unwrap();
-    // map.insert("User-Agent", user_agent);
+    map.insert("User-Agent", user_agent);
     // map.insert("Accept", accept); 
     // // map.insert("Accept-Encoding", accept_encoding);
     // map.insert("Accept-Language", accept_language);

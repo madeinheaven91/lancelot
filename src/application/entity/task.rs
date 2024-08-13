@@ -17,7 +17,7 @@ impl Task{
             Platform::Habr(_) => "https://freelance.habr.com".to_string(),
             Platform::FL(_) => "https://www.fl.ru".to_string(),
             Platform::Kwork(_) => "https://kwork.ru".to_string(),
-            _ => "".to_string()
+            // _ => "".to_string()
         };
         link.push_str(&self.url);
         link
@@ -98,7 +98,7 @@ impl Price{
             PriceKind::PerProject => "per project".to_string(),
             PriceKind::PerHour => "per hour".to_string(),
             PriceKind::Negotiated => "negotiated".to_string(),
-            PriceKind::Monthly => "monthly".to_string()
+            PriceKind::Monthly => "per month".to_string()
         } 
     }
 }

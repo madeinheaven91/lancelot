@@ -2,12 +2,10 @@ use http_body_util::{combinators::BoxBody, BodyExt, Empty, Full};
 use hyper::{body::Bytes, Method, Request, Response, StatusCode};
 use serde::Serialize;
 
-use crate::{
-    application::service::{
+use crate::application::service::{
         http::{fetch_html, fetch_html_headless},
-        serialize::{json_task, json_task_vec},
-    },
-};
+        serialize::json_task_vec,
+    };
 
 use crate::application::service::parse::*;
 

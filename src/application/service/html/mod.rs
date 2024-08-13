@@ -1,4 +1,4 @@
-use scraper::{ElementRef, Html, Selector};
+use scraper::{ElementRef, Selector};
 
 pub fn get_attr<'a>(html: &'a ElementRef<'a>, selector: &'a str, attr: &'a str) -> String {
     let option = html
@@ -37,8 +37,5 @@ pub fn get_text(element: ElementRef) -> String{
 
 pub fn exists(element: &ElementRef, selector: &str) -> bool{
     let selection = element.select(&Selector::parse(selector).unwrap()).next();
-    match selection{
-        None => {return false},
-        _ => {return true;}
-    } 
+    selection.is_some() 
 }

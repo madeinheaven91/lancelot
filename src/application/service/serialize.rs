@@ -14,13 +14,8 @@ pub fn json_task(task: Task) -> serde_json::Value {
   
     // Insertion of prices
     let price = &task.price;
-    let price_kind = match price.kind{
-        PriceKind::PerProject => json!("per project"),
-        PriceKind::PerHour =>  json!("per hour"),
-        PriceKind::Negotiated => json!("negotiated"),
-        PriceKind::Monthly => json!("monthly"),
-    };
-    map.insert("price_kind", price_kind);
+    let price_kind = &task.price.get_kind(); 
+    map.insert("price_kind", json!(price_kind));
 
     let mut price_value: Option<u32> = None;
     let mut price_bounds: Option<(u32, u32)> = None;
@@ -58,7 +53,7 @@ pub fn json_task(task: Task) -> serde_json::Value {
         Platform::Kwork(specific_task) => {
             map.insert("expires_at", json!(&specific_task.expires_at));
         },
-        _ => () ,
+        // _ => () ,
     }
     json!(map)
 }

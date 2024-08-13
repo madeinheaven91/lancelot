@@ -1,7 +1,9 @@
 use std::env;
 
 use fantoccini::{ClientBuilder, Locator};
-use hyper::{header::{self, HeaderName, HeaderValue, HOST}, HeaderMap};
+use hyper::
+    header::HOST
+;
 // use http_body_util::Empty;
 // use hyper::body::Bytes;
 // use hyper::Request;
@@ -154,22 +156,33 @@ use hyper::{header::{self, HeaderName, HeaderValue, HOST}, HeaderMap};
 //TODO: rewrite http client for hyper instead of reqwest
 use scraper::Html;
 
-use crate::application::service::http::utils::{gen_headers, random_user_agent};
+use crate::application::service::http::utils::gen_headers;
 mod utils;
-    
+
 pub async fn fetch_html_headless(url: &str, await_css: &str) -> Html {
     let port = match std::env::var("LANCELOT_WEBDRIVER_PORT") {
         Ok(v) => v,
-        Err(_) => String::from("4444")
+        Err(_) => String::from("4444"),
     };
 
     let not_casted_url = &format!("http://localhost:{}/", port);
     let webdriver_url = not_casted_url.as_str();
 
-    let client = ClientBuilder::native().connect(webdriver_url).await.expect("Failed to connect to WebDriver");
-    client.goto(url).await;
+    let client = ClientBuilder::native()
+        .connect(webdriver_url)
+        .await
+        .expect("Failed to connect to WebDriver");
+    let goto = client.goto(url).await;
+    if goto.is_err() {
+        error!("Webdriver couldn't go to {url}")
+    }
+
     info!("Waiting for {url} to load");
-    client.wait().for_element(Locator::Css(await_css)).await;
+    let element = client.wait().for_element(Locator::Css(await_css)).await;
+    if element.is_err() {
+        error!("Webdriver couldn't await element, which selector is {await_css}")
+    }
+
     let res = client.source().await.unwrap();
     info!("Successfully loaded {url}");
     scraper::Html::parse_document(res.as_str())
@@ -177,24 +190,23 @@ pub async fn fetch_html_headless(url: &str, await_css: &str) -> Html {
 
 pub async fn fetch_html(url: &str, hostname: &str) -> Html {
     let client = reqwest::Client::new();
-   
+
     let headers = gen_headers();
     debug!("Requesting {url}");
-    let req = client
-        .get(url)
-        .headers(headers)
-        .header(HOST, hostname);
+    let req = client.get(url).headers(headers).header(HOST, hostname);
 
-    if env::var_os("RUST_LOG").unwrap_or_default().to_str().unwrap() == "debug" { dbg!(&req); }; 
-    let res = req
-        .send()
-        .await
-        .unwrap();
+    if env::var_os("RUST_LOG")
+        .unwrap_or_default()
+        .to_str()
+        .unwrap()
+        == "debug"
+    {
+        dbg!(&req);
+    };
+    let res = req.send().await.unwrap();
     match res.status().as_u16() / 100 {
         4 => error!("GET {} : {}", url, res.status()),
         _ => info!("GET {} : {}", url, res.status()),
-
     };
     Html::parse_document(&res.text().await.unwrap_or_default())
 }
-

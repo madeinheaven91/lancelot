@@ -1,11 +1,9 @@
-use std::str::from_utf8;
-
 use crate::application::service::html::{exists, get_attr, get_inner_html};
 use crate::application::{
     entity::task::*,
     service::html::{filter_digits, get_text},
 };
-use scraper::{selectable::Selectable, ElementRef, Html, Selector};
+use scraper::{ElementRef, Html, Selector};
 
 pub fn parse_html_habr(html: Html) -> Vec<Task> {
     let task_selector = Selector::parse(".task").unwrap();
@@ -119,18 +117,17 @@ pub fn parse_html_fl(html: Html) -> Vec<Task> {
             price_kind = PriceKind::Negotiated
         }
 
-        let price_value: PriceValue;
-        if price_text.contains('—') {
+        let price_value: PriceValue = if price_text.contains('—') {
             let bound = price_text
                 .split('—')
                 .map(|el| filter_digits(el.to_string()))
                 .collect::<Vec<_>>();
             let lower_bound = bound[0];
             let upper_bound = bound[1];
-            price_value = PriceValue::Range(lower_bound, upper_bound);
+            PriceValue::Range(lower_bound, upper_bound)
         } else {
             let value = filter_digits(price_text);
-            price_value = PriceValue::Exact(value);
+            PriceValue::Exact(value)
         };
 
         let binding = get_inner_html(

@@ -1,17 +1,13 @@
 pub mod logging;
 mod router;
 
-use http_body_util::{combinators::BoxBody, BodyExt, Empty, Full};
-use hyper::{
-    body::Bytes, server::conn::http1, Method, Request, Response, StatusCode,
-};
+use hyper::server::conn::http1;
 use hyper_util::rt::TokioIo;
-use serde::Serialize;
 use tower::ServiceBuilder;
 use std::net::SocketAddr;
 use tokio::net::TcpListener;
 
-use crate::{application::service::{http::fetch_html, serialize::json_task_vec}, Logger};
+use crate::Logger;
 use crate::application::controller::router::*;
 
 
