@@ -58,18 +58,6 @@ pub fn json_task(task: Task) -> serde_json::Value {
     json!(map)
 }
 
-//Object {
-//  title: String,
-//  link: String,
-//  platform: String,
-//  price_type: String,
-//  price: Number?,
-//  views: Number,
-//  responses: Number,
-//  timestamp: Number,
-//  tags: Array[String]
-//}
-
 pub fn json_task_vec(tasks: Vec<Task>) -> serde_json::Value {
     json!(tasks
         .iter()

@@ -1,4 +1,3 @@
-
 use hyper::{header::HeaderValue, HeaderMap};
 use rand::Rng;
 

@@ -35,6 +35,11 @@ pub fn get_text(element: ElementRef) -> String{
     text
 }
 
+pub fn get_text_filtered(element: ElementRef) -> String{
+    let text = element.text().collect::<String>();
+    text.chars().filter(|char| !char.is_control()).collect::<String>()
+}
+
 pub fn exists(element: &ElementRef, selector: &str) -> bool{
     let selection = element.select(&Selector::parse(selector).unwrap()).next();
     selection.is_some() 
