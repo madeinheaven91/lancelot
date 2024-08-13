@@ -158,7 +158,15 @@ use crate::application::service::http::utils::{gen_headers, random_user_agent};
 mod utils;
     
 pub async fn fetch_html_headless(url: &str, await_css: &str) -> Html {
-    let client = ClientBuilder::native().connect("http://localhost:4444/").await.expect("Failed to connect to WebDriver");
+    let port = match std::env::var("LANCELOT_WEBDRIVER_PORT") {
+        Ok(v) => v,
+        Err(_) => String::from("4444")
+    };
+
+    let not_casted_url = &format!("http://localhost:{}/", port);
+    let webdriver_url = not_casted_url.as_str();
+
+    let client = ClientBuilder::native().connect(webdriver_url).await.expect("Failed to connect to WebDriver");
     client.goto(url).await;
     info!("Waiting for {url} to load");
     client.wait().for_element(Locator::Css(await_css)).await;
