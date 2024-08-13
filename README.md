@@ -26,6 +26,7 @@ cargo run
 Переменные окружения:
 
 LANCELOT_PORT - сетевой порт (3000 по умолчанию)
+LANCELOT_WEBDRIVER_PORT - порт вебдрайвера (указанный в `geckodriver --port`)
 
 http://localhost:3000/habr - Хабр Фриланс
 
