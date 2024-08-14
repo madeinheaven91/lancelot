@@ -29,8 +29,8 @@ cargo run
 
 Переменные окружения:
 
-- LANCELOT_PORT - сетевой порт (3000 по умолчанию)
-- LANCELOT_WEBDRIVER_PORT - порт вебдрайвера (указанный в `geckodriver --port`, по умолчанию 4444)
+- PORT - сетевой порт (3000 по умолчанию)
+- WEBDRIVER_PORT - порт вебдрайвера (указанный в `geckodriver --port`, по умолчанию 4444)
 
 Страницы API ( http://localhost:3000 ):
 
