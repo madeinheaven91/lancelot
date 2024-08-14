@@ -14,7 +14,7 @@ use crate::application::controller::router::*;
 pub async fn init_server() -> Result<(), Box<dyn std::error::Error>> {
     // let port = dotenv!("PORT").parse::<u32>().unwrap_or(3000);
     
-    let port = match std::env::var("LANCELOT_PORT") {
+    let port = match std::env::var("PORT") {
         Ok(v) => v.parse::<u16>().unwrap_or(3000),
         Err(_) => 3000
     };

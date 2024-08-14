@@ -160,7 +160,7 @@ use crate::application::service::http::utils::gen_headers;
 mod utils;
 
 pub async fn fetch_html_headless(url: &str, await_css: &str) -> Html {
-    let port = match std::env::var("LANCELOT_WEBDRIVER_PORT") {
+    let port = match std::env::var("WEBDRIVER_PORT") {
         Ok(v) => v,
         Err(_) => String::from("4444"),
     };

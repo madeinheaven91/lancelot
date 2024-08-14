@@ -34,9 +34,11 @@ cargo run
 
 Страницы API ( http://localhost:3000 ):
 
-- /habr - Хабр Фриланс
-- /kwork - Kwork
-- /fl - FL
+- /parse/habr - Хабр Фриланс
+- /parse/kwork - Kwork
+- /parse/fl - FL
+
+Всю информацию также можно посмотреть на странице http://localhost:3000/info
 
 ### TODO:
 

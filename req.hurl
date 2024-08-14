@@ -5,4 +5,4 @@ GET https://freelance.habr.com/tasks
 GET https://w1thluv.ru/
 
 GET http://127.0.0.1:3000/test/client
-GET http://127.0.0.1:3000/test/server
+GET http://127.0.0.1:3000/test/serve
