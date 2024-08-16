@@ -23,3 +23,7 @@ Cargo.lock
 =======
 /target
 >>>>>>> ec7dc0c (initial commit)
+
+## Testing hurl files
+req.hurl
+vars.env

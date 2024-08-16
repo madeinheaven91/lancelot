@@ -168,16 +168,26 @@ pub async fn fetch_html_headless(url: &str, await_css: &str) -> Html {
     let not_casted_url = &format!("http://localhost:{}/", port);
     let webdriver_url = not_casted_url.as_str();
 
+    let mut cap = serde_json::map::Map::new();
+    let opts = serde_json::json!({
+        "args":[
+            "--headless"
+        ]
+    });
+    cap.insert("moz:firefoxOptions".to_string(), opts);
+
     let client = ClientBuilder::native()
+        .capabilities(cap)
         .connect(webdriver_url)
         .await
         .expect("Failed to connect to WebDriver");
+
+    info!("Waiting for {url} to load");
     let goto = client.goto(url).await;
     if goto.is_err() {
         error!("Webdriver couldn't go to {url}")
     }
-
-    info!("Waiting for {url} to load");
+    
     let element = client.wait().for_element(Locator::Css(await_css)).await;
     if element.is_err() {
         error!("Webdriver couldn't await element, which selector is {await_css}")
