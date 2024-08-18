@@ -8,53 +8,22 @@ pub fn json_task(task: Task) -> serde_json::Value {
 
     // Insertion of general properties
     map.insert("title", json!(&task.title));
-    map.insert("link", json!(&task.get_link()));
-    map.insert("platform", json!(&task.get_platform_name()));
+    map.insert("url", json!(&task.url));
+    map.insert("platform", json!(&task.platform));
     map.insert("responses", json!(&task.responses));
-  
     // Insertion of prices
-    let price = &task.price;
-    let price_kind = &task.price.get_kind(); 
-    map.insert("price_kind", json!(price_kind));
-
-    let mut price_value: Option<u32> = None;
-    let mut price_bounds: Option<(u32, u32)> = None;
-    
-    match price.value{
-        PriceValue::Exact(val) => {price_value = Some(val)},
-        PriceValue::Range(lower, upper) => {price_bounds = Some((lower, upper))},
-    }
-
-    if price_value.unwrap_or_default() == 0{
-        if price_bounds.unwrap_or_default() == (0u32, 0u32){
-            map.insert("price_value", json!(null));
-        }else{
-            map.insert("price_lower_bound", json!(price_bounds.unwrap_or_default().0));
-            map.insert("price_upper_bound", json!(price_bounds.unwrap_or_default().1));
-        }
-    }else{
-        map.insert("price_value", json!(price_value.unwrap_or_default()));
-    }
-
+    map.insert("price_kind", json!(&task.price_kind));
+    map.insert("price_value", json!(&task.price_value));
+    map.insert("price_bounds", json!(&task.price_bounds));
     // Insertion of platform specific properties
-    match task.platform {
-        Platform::Habr(specific_task) => {
-            map.insert("views", json!(&specific_task.views));
-            map.insert("published_at", json!(&specific_task.published_at));
-            map.insert("tags", json!(&specific_task.tags));
-        },
-        Platform::FL(specific_task) => {
-            map.insert("is_urgent", json!(&specific_task.is_urgent));
-            map.insert("is_vacancy", json!(&specific_task.is_vacancy));
-            map.insert("is_pinned", json!(&specific_task.is_pinned));
-            map.insert("views", json!(&specific_task.views));
-            map.insert("published_at", json!(&specific_task.published_at));
-        },
-        Platform::Kwork(specific_task) => {
-            map.insert("expires_at", json!(&specific_task.expires_at));
-        },
-        // _ => () ,
-    }
+    map.insert("views", json!(&task.views));
+    map.insert("published_at", json!(&task.published_at));
+    map.insert("tags", json!(&task.tags));
+    map.insert("is_urgent", json!(&task.is_urgent));
+    map.insert("is_vacancy", json!(&task.is_vacancy));
+    map.insert("is_pinned", json!(&task.is_pinned));
+    map.insert("expires_at", json!(&task.expires_at));
+
     json!(map)
 }
 
