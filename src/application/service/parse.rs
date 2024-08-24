@@ -28,10 +28,6 @@ pub fn parse_html_habr(html: Html) -> Vec<Task> {
             .collect::<String>()
             .parse::<u32>()
             .ok();
-        // let price_value = match price_value{
-        //     0 => None,
-        //     _ => Some(price_value)
-        // };
 
         let price_kind = get_inner_html(task, ".suffix");
         let price_kind: PriceKind = match price_kind.as_str() {
@@ -77,10 +73,10 @@ pub fn parse_html_fl(html: Html) -> Vec<Task> {
 
     for task in &task_articles {
         let title = get_inner_html(task, ".b-post__title > a");
+
         let views = Some(filter_digits(get_text(
             task.select(&Selector::parse("span[title='Количество просмотров'] span").unwrap())
                 .next()
-                .unwrap(),
         )));
 
         let response_element = task
@@ -88,7 +84,7 @@ pub fn parse_html_fl(html: Html) -> Vec<Task> {
             .next();
         let responses = match response_element {
             None => None,
-            _ => Some(filter_digits(get_text(response_element.unwrap()))),
+            _ => Some(filter_digits(get_text(response_element))),
         };
 
         let published_at = Some(get_inner_html(task, ".text-gray-opacity-4.text-7.mr-16"));
@@ -97,8 +93,7 @@ pub fn parse_html_fl(html: Html) -> Vec<Task> {
         let binding = task
             .select(&Selector::parse("div.b-post__price > span").unwrap())
             .next();
-
-        let price_text = get_text(binding.unwrap());
+        let price_text = get_text(binding);
 
         let price_kind = if price_text.contains("час") {
             PriceKind::PerHour
@@ -126,11 +121,6 @@ pub fn parse_html_fl(html: Html) -> Vec<Task> {
         } else {
             None
         };
-        //     PriceValue::Range(lower_bound, upper_bound)
-        // } else {
-        //     let value = filter_digits(price_text);
-        //     PriceValue::Exact(value)
-        // };
 
         let binding = get_inner_html(
             task,
@@ -197,12 +187,8 @@ pub fn parse_html_kwork(html: Html) -> Vec<Task> {
         ));
 
         let (price_value, price_bounds) = match price_upper_bound {
-            0 => {
-                (Some(price_lower_bound), None) 
-            },
-            _ => {
-                (None, Some((price_lower_bound, price_upper_bound)))
-            },
+            0 => (Some(price_lower_bound), None),
+            _ => (None, Some((price_lower_bound, price_upper_bound))),
         };
 
         tasks.push(Task {

@@ -30,8 +30,9 @@ pub fn filter_digits(string: String) -> u32 {
         .unwrap_or_default()
 }
 
-pub fn get_text(element: ElementRef) -> String{
-    let text = element.text().collect::<String>();
+pub fn get_text(element: Option<ElementRef>) -> String{
+    if element.is_none() { return String::new() };
+    let text = element.unwrap().text().collect::<String>();
     text
 }
 

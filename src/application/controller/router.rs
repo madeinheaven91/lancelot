@@ -2,9 +2,7 @@ use std::{fs, path::Path};
 
 use http_body_util::{combinators::BoxBody, BodyExt, Empty, Full};
 use hyper::{body::Bytes, Method, Request, Response, StatusCode};
-use scraper::Html;
 use serde::Serialize;
-use serde_json::json;
 
 use crate::application::service::{
     http::{fetch_html, fetch_html_headless},
