@@ -12,12 +12,14 @@ pub fn parse_html_habr(html: Html) -> Vec<Task> {
 
     for task in &task_articles {
         let title = get_inner_html(task, ".task__title > a");
-        let views = get_inner_html(task, ".params__views > i")
+        let views = Some(get_inner_html(task, ".params__views > i")
             .parse::<u32>()
-            .ok();
-        let responses = get_inner_html(task, ".params__responses > i")
+            .ok()
+            .unwrap_or_default());
+        let responses = Some(get_inner_html(task, ".params__responses > i")
             .parse::<u32>()
-            .ok();
+            .ok()
+            .unwrap_or_default());
 
         let published_at = Some(get_inner_html(task, ".params__published-at > span"));
         let url = get_attr(task, "a", "href");
