@@ -1,34 +1,50 @@
-use std::fmt::Debug;
+#![allow(dead_code)]
+#![allow(unreachable_patterns)]
 
+use std::fmt::Debug;
 use serde::{Deserialize, Serialize};
 
-// pub struct Task{
-//     pub title: String,
-//     pub url: String,
-//     pub responses: Option<u32>,
-//     pub platform: Platform,
-//     pub price: Price,
-// }
-
 #[derive(Clone, Debug, Serialize, Deserialize, Default)]
-pub struct Task{
+pub struct Task {
     pub title: String,
     pub url: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default)]
     pub responses: Option<u32>,
-    pub price_kind: PriceKind,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default)]
+    pub price_kind: Option<PriceKind>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default)]
     pub price_value: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default)]
     pub price_bounds: Option<(u32, u32)>,
     pub platform: Platform,
     // Habr
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default)]
     pub views: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default)]
     pub published_at: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default)]
     pub tags: Option<Vec<String>>,
     // FL
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default)]
     pub is_urgent: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default)]
     pub is_pinned: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default)]
     pub is_vacancy: Option<bool>,
     // Kwork
-    pub expires_at: Option<String>
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default)]
+    pub expires_at: Option<String>,
 }
 
 
@@ -47,11 +63,10 @@ impl Task{
 
 #[derive(Clone, Debug, Serialize, Deserialize, Default)]
 pub enum Platform{
+    #[default]
     Habr,
     FL,
     Kwork,
-    #[default]
-    None
 }
 
 impl Platform{
@@ -65,14 +80,12 @@ impl Platform{
     }
 }
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 pub enum PriceKind{
     PerProject,
     PerHour,
     Negotiated,
     PerMonth,
-    #[default]
-    None
 }
 
 impl PriceKind{

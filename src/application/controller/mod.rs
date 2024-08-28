@@ -22,7 +22,8 @@ pub async fn init_server() -> Result<(), Box<dyn std::error::Error>> {
     let addr = SocketAddr::from(([127, 0, 0, 1], port));
     let listener = TcpListener::bind(addr).await?;
     info!("Start listening at {}", addr.to_string());
-
+    // TODO: log webdriver port
+    
     loop {
         let (stream, _) = listener.accept().await?;
         let io = TokioIo::new(stream);

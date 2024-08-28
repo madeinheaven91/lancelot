@@ -47,7 +47,7 @@ pub fn parse_html_habr(html: Html) -> Vec<Task> {
             title,
             url,
             responses,
-            price_kind,
+            price_kind: Some(price_kind),
             price_value,
             platform: Platform::Habr,
             published_at,
@@ -76,7 +76,7 @@ pub fn parse_html_fl(html: Html) -> Vec<Task> {
 
         let views = Some(filter_digits(get_text(
             task.select(&Selector::parse("span[title='Количество просмотров'] span").unwrap())
-                .next()
+                .next(),
         )));
 
         let response_element = task
@@ -105,11 +105,6 @@ pub fn parse_html_fl(html: Html) -> Vec<Task> {
             PriceKind::PerMonth
         };
 
-        let price_value = match filter_digits(price_text.clone()) {
-            0 => None,
-            _ => Some(filter_digits(price_text.clone())),
-        };
-
         let price_bounds: Option<(u32, u32)> = if price_text.contains('—') {
             let bound = price_text
                 .split('—')
@@ -120,6 +115,11 @@ pub fn parse_html_fl(html: Html) -> Vec<Task> {
             Some((lower_bound, upper_bound))
         } else {
             None
+        };
+
+        let price_value = match price_bounds.is_none() {
+            false => None,
+            true => Some(filter_digits(price_text.clone())),
         };
 
         let binding = get_inner_html(
@@ -138,7 +138,7 @@ pub fn parse_html_fl(html: Html) -> Vec<Task> {
             title,
             url,
             responses,
-            price_kind,
+            price_kind: Some(price_kind),
             price_value,
             price_bounds,
             platform: Platform::FL,
@@ -195,7 +195,7 @@ pub fn parse_html_kwork(html: Html) -> Vec<Task> {
             title,
             url,
             responses,
-            price_kind: PriceKind::None,
+            price_kind: None,
             price_value,
             price_bounds,
             platform: Platform::Kwork,

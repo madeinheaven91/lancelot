@@ -1,0 +1,44 @@
+use crate::application::entity::task::{PriceKind, Task};
+use std::collections::HashMap;
+
+pub fn filter(tasks: Vec<Task>, query: HashMap<String, String>) -> Vec<Task> {
+    let mut res = Vec::new();
+    if query.is_empty() {return tasks};
+    for (key, value) in query {
+        match key.as_str() {
+            "price_kind" => match value.as_str() {
+                "negotiated" => tasks.iter().for_each(|el| {
+                    if el.price_kind == PriceKind::Negotiated {
+                        res.push(el.clone())
+                    }
+                }),
+                "per_project" => tasks.iter().for_each(|el| {
+                    if el.price_kind == PriceKind::PerProject {
+                        res.push(el.clone())
+                    }
+                }),
+                "per_hour" => tasks.iter().for_each(|el| {
+                    if el.price_kind == PriceKind::PerHour {
+                        res.push(el.clone())
+                    }
+                }),
+                _ => (),
+            },
+            "responses[eq]" => { tasks.iter().for_each(|el| if el.responses.unwrap_or_default().to_string() == value { res.push(el.clone())}) },
+            "views[eq]" => { tasks.iter().for_each(|el| if el.views.unwrap_or_default().to_string() == value { res.push(el.clone())}) },
+            "pinned" => { tasks.iter().for_each(|el| if el.is_pinned.unwrap_or_default().to_string() == value { res.push(el.clone())}) },
+            "urgent" => { tasks.iter().for_each(|el| if el.is_urgent.unwrap_or_default().to_string() == value { res.push(el.clone())}) },
+            "vacancy" => { tasks.iter().for_each(|el| if el.is_vacancy.unwrap_or_default().to_string() == value { res.push(el.clone())}) },
+            // "responses[gte]" => { tasks.iter().for_each(|el| if el.responses.unwrap_or_default().to_string() >= value { res.push(el.clone())}) },
+            // "responses[lte]" => { tasks.iter().for_each(|el| if el.responses.unwrap_or_default().to_string() <= value { res.push(el.clone())}) },
+            _ => (),
+        }
+    }
+
+    res
+}
+
+// NOTE: фильтры:
+// по просмотрам (больше меньше равно)
+// по ответам (больше меньше равно)
+// по типу цены (договорная, за проект, за заказ)

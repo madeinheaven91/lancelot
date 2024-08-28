@@ -2,7 +2,7 @@ use chrono::Local;
 use colored::{ColoredString, Colorize};
 use log::Level;
 use std::{env, io::Write, str::FromStr};
-use hyper::{body::Incoming, service::Service, Request};
+use hyper::{body::Incoming, service::Service, Request, StatusCode};
 
 pub fn init_logging() {
     // Set log level depending on provided env variables
@@ -45,8 +45,8 @@ fn build_logger() {
         .format(|buf, record| {
             writeln!(
                 buf,
-                "{}{}:\t{}",
-                Local::now().format("[ %d/%m/%Y - %H:%M:%S ] "),
+                "{}{}: {}",
+                Local::now().format("[%d.%m.%y|%H:%M:%S] "),
                 colourful_loglevel(record.level()),
                 record.args()
             )
@@ -77,4 +77,13 @@ where
         info!("Processing request: {} {}", req.method(), req.uri().path());
         self.inner.call(req)
     }
+}
+
+pub fn log_res_status(res: &StatusCode, url: &str){
+    match res.as_u16() {
+        200..300 => info!("GET {} : {}", url, res),
+        100..200 | 300..400 => warn!("GET {} : {}", url, res),
+        400..600 => error!("GET {} : {}", url, res),
+        _ => (),
+    };
 }

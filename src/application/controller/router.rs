@@ -1,4 +1,4 @@
-use std::{fs, path::Path};
+use std::{collections::HashMap, fs, path::Path};
 
 use http_body_util::{combinators::BoxBody, BodyExt, Empty, Full};
 use hyper::{body::Bytes, Method, Request, Response, StatusCode};
@@ -6,24 +6,34 @@ use serde::Serialize;
 
 use crate::application::service::{
     http::{fetch_html, fetch_html_headless},
-    serialize::json_task_vec,
+    json::{
+        filter::filter,
+        parse::{parse_html_fl, parse_html_habr, parse_html_kwork},
+    },
 };
-
-use crate::application::service::parse::*;
 
 pub async fn router(
     req: Request<hyper::body::Incoming>,
 ) -> Result<Response<BoxBody<Bytes, hyper::Error>>, hyper::Error> {
+    let params: HashMap<String, String> = req
+        .uri()
+        .query()
+        .map(|v| form_urlencoded::parse(v.as_bytes()).into_owned().collect())
+        .unwrap_or_default();
+
     match (req.method(), req.uri().path()) {
-        (&Method::GET, "/parse/habr") => ok(&json_task_vec(parse_html_habr(
-            fetch_html("https://freelance.habr.com/tasks", "freelance.habr.com").await,
-        ))),
-        (&Method::GET, "/parse/fl") => ok(&json_task_vec(parse_html_fl(
+        (&Method::GET, "/parse/habr") => ok(&filter(
+            &mut parse_html_habr(
+                fetch_html("https://freelance.habr.com/tasks", "freelance.habr.com").await,
+            ),
+            params,
+        )),
+        (&Method::GET, "/parse/fl") => ok(&filter( &mut parse_html_fl(
             fetch_html_headless("https://www.fl.ru/projects", "div[qa-project-name]").await,
-        ))),
-        (&Method::GET, "/parse/kwork") => ok(&json_task_vec(parse_html_kwork(
+        ), params)),
+        (&Method::GET, "/parse/kwork") => ok(&filter(&mut parse_html_kwork(
             fetch_html_headless("https://kwork.ru/projects", "div.want-card").await,
-        ))),
+        ), params)),
         (&Method::GET, "/parse/all") => {
             let mut habr_tasks = parse_html_habr(
                 fetch_html("https://freelance.habr.com/tasks", "freelance.habr.com").await,
@@ -39,16 +49,22 @@ pub async fn router(
             res.append(&mut habr_tasks);
             res.append(&mut kwork_tasks);
             res.append(&mut fl_tasks);
-            ok(&res)
+            ok(&filter(&mut res, params))
         }
-        (&Method::GET, "/info") => ok_txt("./src/assets/html/info.html", "text/html; charset=utf-8"),
+        (&Method::GET, "/info") => {
+            ok_txt("./src/assets/html/info.html", "text/html; charset=utf-8")
+        }
         (&Method::GET, "/error/not_found") => {
             let html = fs::read_to_string(Path::new("./src/assets/html/not_found.html")).unwrap();
             let res = res_html(html, StatusCode::NOT_FOUND);
             Ok(res)
         }
-        (&Method::GET, "/assets/images/not_found.jpg") => ok_img(src_plus_path(req.uri().path()).as_str()), 
-        (&Method::GET, "/assets/css/main.css") => ok_txt(src_plus_path(req.uri().path()).as_str(), "text/css"), 
+        (&Method::GET, "/assets/images/not_found.jpg") => {
+            ok_img(src_plus_path(req.uri().path()).as_str())
+        }
+        (&Method::GET, "/assets/css/main.css") => {
+            ok_txt(src_plus_path(req.uri().path()).as_str(), "text/css")
+        }
         _ => {
             warn!("Requested page does not exist! Redirecting to 404 page...");
             let res = Response::builder()
@@ -69,7 +85,6 @@ where
         .header("Content-Type", "application/json")
         .body(full(serde_json::to_string(result).unwrap()))
         .unwrap();
-    info!("Processed request");
     Ok(response)
 }
 
@@ -101,7 +116,10 @@ fn ok_img(path: &str) -> Result<Response<BoxBody<Bytes, hyper::Error>>, hyper::E
     Ok(res)
 }
 
-fn ok_txt(path: &str, content_type: &str) -> Result<Response<BoxBody<Bytes, hyper::Error>>, hyper::Error> {
+fn ok_txt(
+    path: &str,
+    content_type: &str,
+) -> Result<Response<BoxBody<Bytes, hyper::Error>>, hyper::Error> {
     let img = fs::read(Path::new(&path)).unwrap();
     let res = Response::builder()
         .header("Content-Type", content_type)
@@ -110,7 +128,6 @@ fn ok_txt(path: &str, content_type: &str) -> Result<Response<BoxBody<Bytes, hype
     Ok(res)
 }
 
-fn src_plus_path(path: &str) -> String{
-     "./src".to_string() + path
+fn src_plus_path(path: &str) -> String {
+    "./src".to_string() + path
 }
-
