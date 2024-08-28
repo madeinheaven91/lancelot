@@ -1,5 +1,5 @@
 use crate::application::entity::task::{PriceKind, Task};
-use std::collections::HashMap;
+use std::{borrow::Borrow, collections::HashMap};
 
 pub fn filter(tasks: &mut [Task], query: HashMap<String, String>) -> Vec<Task> {
     let tasks = tasks.to_owned();
@@ -38,6 +38,15 @@ pub fn filter(tasks: &mut [Task], query: HashMap<String, String>) -> Vec<Task> {
     let views_bounds = (views_gte, views_lte);
     let price_bounds = (price_gte, price_lte);
 
+    let tags = match query.get("tags") {
+        None => String::new(),
+        Some(val) => val.to_owned()
+    };
+    let tags = tags.split(",").collect::<Vec<_>>();
+
+    let binding = "".to_string();
+    let title_slice = query.get("title").unwrap_or(&binding);
+
     tasks
         .iter()
         .filter(|el| {
@@ -52,28 +61,38 @@ pub fn filter(tasks: &mut [Task], query: HashMap<String, String>) -> Vec<Task> {
                 "responses[eq]" => el.responses.map_or(false, |r| r.to_string() == *value),
                 "responses[lte]" | "responses[gte]" => {
                     el.responses.map_or(false, |r| is_in_bounds(r, resp_bounds))
-                },
-                "views[eq]" => el.views.map_or(false, |r| r.to_string() == *value) || el.views.is_none(),
+                }
+                "views[eq]" => {
+                    el.views.map_or(false, |r| r.to_string() == *value) || el.views.is_none()
+                }
                 "views[lte]" | "views[gte]" => {
                     el.views.map_or(false, |r| is_in_bounds(r, views_bounds)) || el.views.is_none()
-                },
+                }
 
                 "price_value[lte]" | "price_value[gte]" => {
-                    let el_bounds= if el.price_bounds.is_none(){
-                        if el.price_value.is_none(){
+                    let el_bounds = if el.price_bounds.is_none() {
+                        if el.price_value.is_none() {
                             return false;
-                        }else{
+                        } else {
                             (el.price_value.unwrap(), el.price_value.unwrap())
                         }
-                    }else{
+                    } else {
                         el.price_bounds.unwrap()
                     };
-                    is_subset( el_bounds, price_bounds)
-                },
+                    is_subset(el_bounds, price_bounds)
+                }
 
                 "pinned" => el.is_pinned.map_or(false, |p| p.to_string() == *value),
                 "urgent" => el.is_urgent.map_or(false, |u| u.to_string() == *value),
                 "vacancy" => el.is_vacancy.map_or(false, |v| v.to_string() == *value),
+
+                "tags" => el
+                    .tags
+                    .clone()
+                    .map_or(false, |v| tags.iter().all(|q| v.contains(&q.to_string()))),
+
+                "title" => el.title.to_lowercase().contains(&title_slice.to_lowercase()),
+
                 _ => true,
             })
         })
